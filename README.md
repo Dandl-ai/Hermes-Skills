@@ -1,6 +1,6 @@
-# Hermes Agent Skills — Security & DevOps Library
+# Hermes Agent Skills Library
 
-A curated collection of **Hermes Agent skills** for security auditing and local development workflows. These are reusable procedural skills written for the [Hermes Agent](https://hermes-agent.nousresearch.com) framework — each one encapsulates a proven, field-tested methodology so an agent can reproduce it reliably without rediscovering the steps.
+A curated collection of procedural skills written for [Hermes Agent](https://hermes-agent.nousresearch.com). Each skill encapsulates a proven, field-tested methodology, enabling agents to execute complex, multi-step workflows reliably and repeatably without having to rediscover the necessary steps.
 
 > **What is a Hermes skill?** A `SKILL.md` file plus optional `scripts/`, `references/`, and `templates/` that tells the agent *when* to apply a workflow, *how* to execute it step by step, and *how to verify* it worked. See [`software-development/Skill-Authoring-Craft/`](software-development/Skill-Authoring-Craft/) for the authoring guide.
 
