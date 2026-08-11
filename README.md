@@ -27,6 +27,12 @@ A curated collection of procedural skills written for [Hermes Agent](https://her
 |---|---|
 | [`RootlessLocalDeployment`](software-development/RootlessLocalDeployment/) | Host heavy local applications (Node monorepos, Postgres/Redis/S3) **without root**: rootless Docker, nvm, native services. |
 
+### 🔧 `tools/` — Open-Source Tool Mastery
+
+| Skill | Purpose |
+|---|---|
+| [`MiroFish`](tools/MiroFish/) | Multi-agent swarm intelligence engine for predicting outcomes via high-fidelity social simulation. 5-phase workflow: graph building → environment setup → parallel simulation → report → interaction. |
+
 ### 🧠 `meta/` — Skills about Skills
 
 | Skill | Purpose |
