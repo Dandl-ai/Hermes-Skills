@@ -1,4 +1,4 @@
-# Hermes Agent Skills Library
+# Hermes Skills 
 
 A curated collection of procedural skills written for [Hermes Agent](https://hermes-agent.nousresearch.com). Each skill encapsulates a proven, field-tested methodology, enabling agents to execute complex, multi-step workflows reliably and repeatably without having to rediscover the necessary steps.
 
