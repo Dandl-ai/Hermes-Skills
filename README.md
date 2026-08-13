@@ -1,19 +1,28 @@
 <div align="center">
 
-# Hermes Skills
+<h1>Hermes Skills</h1>
 
-Procedural playbooks for [Hermes Agent](https://hermes-agent.nousresearch.com)
+<h3>Procedural playbooks for&nbsp;<a href="https://hermes-agent.nousresearch.com">Hermes Agent</a></h3>
 
-Each skill encapsulates a complete, field-tested workflow — triggers, exact commands, pitfalls, and verification gates. No fluff, no theory. Just proven playbooks an agent can execute cold.
+<p>
+  Field-tested workflows — triggers, exact commands, pitfalls, and verification gates.<br/>
+  No fluff, no theory. Just proven playbooks an agent can execute cold.
+</p>
 
-![License](https://img.shields.io/badge/license-MIT-blue)
-![Skills](https://img.shields.io/badge/skills-13-green)
-![Category](https://img.shields.io/badge/categories-4-orange)
-![Hermes](https://img.shields.io/badge/Hermes-Agent-purple)
+<br/>
+
+<a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"/></a>
+<img src="https://img.shields.io/badge/skills-13-green.svg" alt="13 skills"/>
+<img src="https://img.shields.io/badge/categories-4-orange.svg" alt="4 categories"/>
+<img src="https://img.shields.io/badge/Hermes-Agent-purple.svg" alt="Hermes Agent"/>
+
+<br/><br/>
+
+<sub>Built from real engagements — web audits, deployments, multi-agent simulations. Refined through actual use, not written speculatively.</sub>
 
 </div>
 
----
+<br/>
 
 ## Install
 
@@ -30,15 +39,17 @@ cp -r * ~/.hermes/skills/
 
 Skills are auto-detected by Hermes on startup — no registration needed.
 
----
+<br/>
 
-## Skill Architecture
+## Architecture
+
+Each skill is a directory containing:
 
 ```
 SkillName/
-├── SKILL.md            mandatory — frontmatter (name, triggers, tags) + structured body
-├── scripts/            optional — reusable scripts (Python, Node.js, bash)
-└── references/         optional — long reference material (checklists, API maps, formats)
+├── SKILL.md            # mandatory — frontmatter (name, triggers, tags) + structured body
+├── scripts/            # optional — reusable scripts (Python, Node.js, bash)
+└── references/         # optional — long reference material (checklists, API maps, formats)
 ```
 
 The body follows a fixed structure:
@@ -51,11 +62,9 @@ The body follows a fixed structure:
 | **Verification** | How to confirm each phase worked (status codes, output checks, file presence) |
 | **Out-of-Scope** | What this skill deliberately does NOT handle |
 
----
+<br/>
 
-## Contents
-
-### 🔒 Security — 8 skills
+## 🔒 Security &nbsp;<sup><sub>8 skills</sub></sup>
 
 A complete web application audit pipeline — from methodology to exploitation to reporting.
 
@@ -70,19 +79,25 @@ A complete web application audit pipeline — from methodology to exploitation t
 | [OidcPkceAuthorizationCode](security/OidcPkceAuthorizationCode/) | OIDC Authorization Code + PKCE (RFC 7636) implementation | Route + model code, timing-safe comparisons |
 | [SecurityFindingsReporting](security/SecurityFindingsReporting/) | Structured reporting: CVSS scoring, PoC format, evidence traceability | Finding template, patch format, tracking |
 
-### 🛠 Software Development — 1 skill
+<br/>
+
+## 🛠 Software Development &nbsp;<sub>1 skill</sub>
 
 | Skill | Description | Includes |
 |---|---|---|
 | [RootlessLocalDeployment](software-development/RootlessLocalDeployment/) | Host heavy apps (Node/Ember/NestJS monorepos + Postgres/Redis/S3) without root or sudo | Docker rootless, nvm, compose plugin, verified launch sequence |
 
-### 🔧 Tools — 1 skill
+<br/>
+
+## 🔧 Tools &nbsp;<sub>1 skill</sub>
 
 | Skill | Description | Includes |
 |---|---|---|
 | [MiroFish](tools/MiroFish/) | Swarm-intelligence prediction engine: simulation control, monitoring, report generation | API endpoint map, `actions.jsonl` format reference |
 
-### 🧠 Meta — 3 skills
+<br/>
+
+## 🧠 Meta &nbsp;<sub>3 skills</sub>
 
 Skills about skills — authoring, anonymizing, and publishing.
 
@@ -92,50 +107,7 @@ Skills about skills — authoring, anonymizing, and publishing.
 | [SkillAnonymizer](meta/SkillAnonymizer/) | Exhaustive anonymization before publishing: 8-category identifier taxonomy | `skill_anonymizer.py` scanner, redaction protocol, allowlist |
 | [SkillLibraryGitHubRelease](meta/SkillLibraryGitHubRelease/) | Turn a local skills folder into a clean, publication-ready GitHub repo | Sensitive scan, ordered anonymization, repo scaffolding |
 
----
-
-## How Skills Chain Together
-
-```
-  ┌─────────────────────────────────┐
-  │   OffensiveAuditOrchestration    │
-  │   risk · routing · budget · stop │
-  └────────────┬─────────┬──────────┘
-               │         │
-     ┌─────────▼──┐   ┌──▼────────────────┐
-     │    SAST    │   │ DynamicRuntime     │
-     │ semgrep    │   │ live recon · probe │
-     │ greps      │   │ headers · CORS     │
-     └─────────┬──┘   └──┬────────────────┘
-               │         │
-     ┌─────────▼─────────▼──────────────┐
-     │    FullStackWebSecurityReview     │
-     │   correlate static + live finds  │
-     └────────────────┬─────────────────┘
-                      │
-           ┌──────────▼──────────────┐
-           │ SecurityFindingsReport   │
-           │ CVSS · PoC · patches     │
-           └──────────────────────────┘
-```
-
-For PHP/MySQL targets, swap in `PhpMySqlWebAppPenetrationTesting` for deeper code review and bot challenge bypass.
-
-Before publishing any skill, run `SkillAnonymizer` → `SkillLibraryGitHubRelease`.
-
----
-
-## Conventions
-
-```
-Packages      PascalCase         FullStackWebSecurityReview
-Categories    lowercase          security/  meta/  tools/
-Frontmatter   name: PascalCase   name: FullStackWebSecurityReview
-Self-contained  no cross-skill imports at runtime
-related_skills  informational only (not executed)
-```
-
----
+<br/>
 
 <div align="center">
 
