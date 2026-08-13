@@ -83,6 +83,7 @@ A complete web application audit pipeline — from methodology to exploitation t
 | [PhpMySqlWebAppPenetrationTesting](security/PhpMySqlWebAppPenetrationTesting/) | Hands-on PHP/MySQL pentest: code review, bot bypass, privilege escalation | `solve_js_challenge.js` solver script |
 | [OidcPkceAuthorizationCode](security/OidcPkceAuthorizationCode/) | OIDC Authorization Code + PKCE (RFC 7636) implementation | Route + model code, timing-safe comparisons |
 | [SecurityFindingsReporting](security/SecurityFindingsReporting/) | Structured reporting: CVSS scoring, PoC format, evidence traceability | Finding template, patch format, tracking |
+| [WebPentestToolkit](security/WebPentestToolkit/) | Web pentest pipeline: nmap, httpx, ffuf, nuclei, sqlmap, semgrep, hydra, john | Quick reference for 9 tools, pipeline procedure, pitfalls |
 
 <br/>
 
@@ -98,7 +99,7 @@ A complete web application audit pipeline — from methodology to exploitation t
 
 | Skill | Description | Includes |
 |---|---|---|
-| [MiroFish](tools/MiroFish/) | Swarm-intelligence prediction engine: simulation control, monitoring, report generation | API endpoint map, `actions.jsonl` format reference |
+| [MiroFish](tools/MiroFish/) | Swarm-intelligence prediction engine: launch, monitor, stop simulations | API endpoint map, `actions.jsonl` format reference |
 
 <br/>
 
