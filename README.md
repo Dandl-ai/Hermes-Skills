@@ -52,6 +52,7 @@ Then start a new Hermes session — the skills will be available to the agent.
 | Skill | Purpose |
 |---|---|
 | [`Skill-Authoring-Craft`](meta/Skill-Authoring-Craft/) | Meta-skill: how to author high-quality Hermes skills — structure, triggers, pitfalls, verification, and anonymity. |
+| [`SkillAnonymizer`](meta/skill-anonymizer/) | Enforce strict anonymization before publishing — exhaustive identifier taxonomy (network, secrets, personal, project, temporal, linguistic, metadata), automated Python scanner, and step-by-step redaction protocol with re-verification gates. |
 | [`SkillLibraryGitHubRelease`](meta/SkillLibraryGitHubRelease/) | Publish a Hermes skill library to GitHub: anonymize real targets, add repo scaffolding, git init. |
 
 ---
