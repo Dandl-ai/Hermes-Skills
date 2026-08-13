@@ -8,12 +8,12 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [Skills, Anonymity, Meta, OPSEC, Privacy, Publishing, Security]
-    related_skills: [Skill-Authoring-Craft, SkillLibraryGitHubRelease]
+    related_skills: [SkillAuthoringCraft, SkillLibraryGitHubRelease]
 ---
 
 # Skill Anonymizer
 
-Enforce strict, verifiable anonymization of Hermes skills before publishing. This skill goes beyond the basic anonymization section in `Skill-Authoring-Craft` — it provides an exhaustive identifier taxonomy, an automated Python scanner, and a step-by-step redaction protocol with re-verification gates.
+Enforce strict, verifiable anonymization of Hermes skills before publishing. This skill goes beyond the basic anonymization section in `SkillAuthoringCraft` — it provides an exhaustive identifier taxonomy, an automated Python scanner, and a step-by-step redaction protocol with re-verification gates.
 
 ## When to Use
 
@@ -24,7 +24,7 @@ Enforce strict, verifiable anonymization of Hermes skills before publishing. Thi
 
 ## Why This Exists
 
-`Skill-Authoring-Craft` covers anonymization in ~40 lines. That is enough for simple skills. It is NOT enough when a skill contains:
+`SkillAuthoringCraft` covers anonymization in ~40 lines. That is enough for simple skills. It is NOT enough when a skill contains:
 
 - Timestamps that reveal the engagement date
 - UUIDs, simulation IDs, report IDs tied to a real system
@@ -245,7 +245,7 @@ Before considering a skill anonymized:
 
 ## Out of Scope
 
-- Authoring the skill content itself (see `Skill-Authoring-Craft`)
+- Authoring the skill content itself (see `SkillAuthoringCraft`)
 - Publishing workflow (see `SkillLibraryGitHubRelease`)
 - Hermes-specific CLI configuration (see `hermes-agent`)
 - Legal compliance (GDPR, CCPA) — this skill handles technical anonymization of skill files only, not legal data protection

@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [GitHub, Publishing, Skills, Anonymization, Open-Source, Release]
-    related_skills: [Skill-Authoring-Craft, github-repo-management, github-auth]
+    related_skills: [SkillAuthoringCraft, github-repo-management, github-auth]
 ---
 
 # Skill Library GitHub Release
@@ -131,4 +131,4 @@ gh repo create <owner>/<repo> --public --source=. --push
 
 - Actually authenticating/pushing to GitHub (depends on user's account/`gh`/SSH — ask, then run).
 - Translating skill prose to another language (use a separate step).
-- Writing new skills from scratch (see `Skill-Authoring-Craft`).
+- Writing new skills from scratch (see `SkillAuthoringCraft`).
