@@ -11,13 +11,6 @@
 
 <br/>
 
-<a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"/></a>
-<img src="https://img.shields.io/badge/skills-13-green.svg" alt="13 skills"/>
-<img src="https://img.shields.io/badge/categories-4-orange.svg" alt="4 categories"/>
-<img src="https://img.shields.io/badge/Hermes-Agent-purple.svg" alt="Hermes Agent"/>
-
-<br/><br/>
-
 <sub>Built from real engagements — web audits, deployments, multi-agent simulations. Refined through actual use, not written speculatively.</sub>
 
 </div>
@@ -64,7 +57,19 @@ The body follows a fixed structure:
 
 <br/>
 
-## 🔒 Security &nbsp;<sup><sub>8 skills</sub></sup>
+## 🧠 Meta
+
+Skills about skills — authoring, anonymizing, and publishing.
+
+| Skill | Description | Includes |
+|---|---|---|
+| [SkillAuthoringCraft](meta/SkillAuthoringCraft/) | How to write skills that work: frontmatter detection, body structure, verification gates | Template, detection rules, golden rules |
+| [SkillAnonymizer](meta/SkillAnonymizer/) | Exhaustive anonymization before publishing: 8-category identifier taxonomy | `skill_anonymizer.py` scanner, redaction protocol, allowlist |
+| [SkillLibraryGitHubRelease](meta/SkillLibraryGitHubRelease/) | Turn a local skills folder into a clean, publication-ready GitHub repo | Sensitive scan, ordered anonymization, repo scaffolding |
+
+<br/>
+
+## 🔒 Security
 
 A complete web application audit pipeline — from methodology to exploitation to reporting.
 
@@ -81,7 +86,7 @@ A complete web application audit pipeline — from methodology to exploitation t
 
 <br/>
 
-## 🛠 Software Development &nbsp;<sub>1 skill</sub>
+## 🛠 Software Development
 
 | Skill | Description | Includes |
 |---|---|---|
@@ -89,23 +94,11 @@ A complete web application audit pipeline — from methodology to exploitation t
 
 <br/>
 
-## 🔧 Tools &nbsp;<sub>1 skill</sub>
+## 🔧 Tools
 
 | Skill | Description | Includes |
 |---|---|---|
 | [MiroFish](tools/MiroFish/) | Swarm-intelligence prediction engine: simulation control, monitoring, report generation | API endpoint map, `actions.jsonl` format reference |
-
-<br/>
-
-## 🧠 Meta &nbsp;<sub>3 skills</sub>
-
-Skills about skills — authoring, anonymizing, and publishing.
-
-| Skill | Description | Includes |
-|---|---|---|
-| [SkillAuthoringCraft](meta/SkillAuthoringCraft/) | How to write skills that work: frontmatter detection, body structure, verification gates | Template, detection rules, golden rules |
-| [SkillAnonymizer](meta/SkillAnonymizer/) | Exhaustive anonymization before publishing: 8-category identifier taxonomy | `skill_anonymizer.py` scanner, redaction protocol, allowlist |
-| [SkillLibraryGitHubRelease](meta/SkillLibraryGitHubRelease/) | Turn a local skills folder into a clean, publication-ready GitHub repo | Sensitive scan, ordered anonymization, repo scaffolding |
 
 <br/>
 
