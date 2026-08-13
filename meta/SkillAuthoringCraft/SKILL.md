@@ -1,5 +1,5 @@
 ---
-name: Skill-Authoring-Craft
+name: SkillAuthoringCraft
 description: "Author high-quality Hermes skills: structure, triggers, pitfalls, verification."
 version: 1.0.0
 author: Hermes Agent

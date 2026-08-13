@@ -2,7 +2,21 @@
 
 A curated collection of procedural skills written for [Hermes Agent](https://hermes-agent.nousresearch.com). Each skill encapsulates a proven, field-tested methodology, enabling agents to execute complex, multi-step workflows reliably and repeatably without having to rediscover the necessary steps.
 
-> **What is a Hermes skill?** A `SKILL.md` file plus optional `scripts/`, `references/`, and `templates/` that tells the agent *when* to apply a workflow, *how* to execute it step by step, and *how to verify* it worked. See [`software-development/Skill-Authoring-Craft/`](software-development/Skill-Authoring-Craft/) for the authoring guide.
+> **What is a Hermes skill?** A `SKILL.md` file plus optional `scripts/`, `references/`, and `templates/` that tells the agent *when* to apply a workflow, *how* to execute it step by step, and *how to verify* it worked. See [`meta/SkillAuthoringCraft/`](meta/SkillAuthoringCraft/) for the authoring guide.
+
+---
+
+## 🚀 Install
+
+Skills can be added to your Hermes profile by copying the skill folders into `~/.hermes/skills/<category>/`:
+
+```bash
+# Example: install just the PHP audit skill
+mkdir -p ~/.hermes/skills/security
+cp -r security/PhpMySqlWebAppPenetrationTesting ~/.hermes/skills/security/
+```
+
+Then start a new Hermes session — the skills will be available to the agent.
 
 ---
 
@@ -51,15 +65,15 @@ Then start a new Hermes session — the skills will be available to the agent.
 
 | Skill | Purpose |
 |---|---|
-| [`Skill-Authoring-Craft`](meta/Skill-Authoring-Craft/) | Meta-skill: how to author high-quality Hermes skills — structure, triggers, pitfalls, verification, and anonymity. |
-| [`SkillAnonymizer`](meta/skill-anonymizer/) | Enforce strict anonymization before publishing — exhaustive identifier taxonomy (network, secrets, personal, project, temporal, linguistic, metadata), automated Python scanner, and step-by-step redaction protocol with re-verification gates. |
+| [`SkillAuthoringCraft`](meta/SkillAuthoringCraft/) | Meta-skill: how to author high-quality Hermes skills — structure, triggers, pitfalls, verification, and anonymity. |
+| [`SkillAnonymizer`](meta/SkillAnonymizer/) | Enforce strict anonymization before publishing — exhaustive identifier taxonomy (network, secrets, personal, project, temporal, linguistic, metadata), automated Python scanner, and step-by-step redaction protocol with re-verification gates. |
 | [`SkillLibraryGitHubRelease`](meta/SkillLibraryGitHubRelease/) | Publish a Hermes skill library to GitHub: anonymize real targets, add repo scaffolding, git init. |
 
 ---
 
 ## 🧭 Authoring Guide
 
-New to writing skills? Read [`Skill-Authoring-Craft/SKILL.md`](software-development/Skill-Authoring-Craft/) — it covers the exact structure, detection rules, and verification checklist used by every skill in this library.
+New to writing skills? Read [`meta/SkillAuthoringCraft/SKILL.md`](meta/SkillAuthoringCraft/) — it covers the exact structure, detection rules, and verification checklist used by every skill in this library.
 
 ---
 

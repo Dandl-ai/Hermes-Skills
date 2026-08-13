@@ -1,5 +1,5 @@
 ---
-name: mirofish-simulation-runner
+name: MiroFish
 description: Operate MiroFish swarm-intelligence prediction engine locally — prepare, launch, monitor, stop, and generate reports for multi-agent social simulations via its Flask REST API.
 author: anonymized
 date: 2026-08-13
