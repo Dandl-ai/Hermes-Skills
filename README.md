@@ -84,6 +84,8 @@ A complete web application audit pipeline — from methodology to exploitation t
 | [OidcPkceAuthorizationCode](security/OidcPkceAuthorizationCode/) | OIDC Authorization Code + PKCE (RFC 7636) implementation | Route + model code, timing-safe comparisons |
 | [SecurityFindingsReporting](security/SecurityFindingsReporting/) | Structured reporting: CVSS scoring, PoC format, evidence traceability | Finding template, patch format, tracking |
 | [WebPentestToolkit](security/WebPentestToolkit/) | Web pentest pipeline: nmap, httpx, ffuf, nuclei, sqlmap, semgrep, hydra, john | Quick reference for 9 tools, pipeline procedure, pitfalls |
+| [WindowsDesktopAudit](security/WindowsDesktopAudit/) | Black-box audit of Windows desktop apps: privesc, DLL hijacking, UAC bypass, credential extraction | 5-phase methodology, technique matrix, IPC abuse |
+| [WindowsDesktopRuntimeAudit](security/WindowsDesktopRuntimeAudit/) | Runtime black-box audit of Windows desktop apps in VM — process instrumentation, secrets, config | 6-phase methodology, VM setup, DLL hijacking procedure, tool reference |
 
 <br/>
 
