@@ -1,434 +1,262 @@
 ---
-name: MiroFish
-description: "Multi-agent swarm intelligence engine for predicting outcomes via high-fidelity social simulation. Upload seed materials, generate agent personas, run parallel simulations, and produce prediction reports."
-version: 1.0.0
-author: DawnFolk
-license: AGPL-3.0
-platforms: [linux, macos, windows]
-metadata:
-  hermes:
-    tags: [Simulation, MultiAgent, SwarmIntelligence, Prediction, LLM, GraphRAG, OASIS, Zep]
-    related_skills: []
+name: mirofish-simulation-runner
+description: Operate MiroFish swarm-intelligence prediction engine locally — prepare, launch, monitor, stop, and generate reports for multi-agent social simulations via its Flask REST API.
+author: anonymized
+date: 2026-08-13
+version: 1.0
+tags: [mirofish, swarm-intelligence, multi-agent, simulation, flask-api, python, uv]
 ---
 
-# MiroFish — Swarm Intelligence Prediction Engine
-
-> A simple and universal swarm intelligence engine for predicting anything. Upload seed materials (news, reports, novels), and MiroFish constructs a parallel digital world where thousands of agents with personalities and memory interact, evolve, and reveal future trajectories.
-
-GitHub: <https://github.com/666ghj/MiroFish>
-
----
+# MiroFish Simulation Runner
 
 ## When to Use
 
-- Predict public opinion trajectories from news or policy drafts
-- Simulate social media reactions (Twitter, Reddit) to events
-- Deduce fictional outcomes (e.g., "what happens next in this novel?")
-- Rehearse decision-making in a zero-risk digital sandbox
-- Test PR or policy scenarios before real-world deployment
-- Explore multi-agent social emergence with GraphRAG-backed memory
+- You need to launch, monitor, or stop a MiroFish multi-agent social simulation.
+- You need to generate a prediction report from a completed simulation.
+- You need to inspect simulation artefacts (actions, posts, timeline, agent stats).
+- The user says "MiroFish", "swarm simulation", "agent prediction", or references a `sim_*` ID.
 
 ## Prerequisites
 
-- **Node.js** 18+ (`node -v`)
-- **Python** ≥3.11, ≤3.12 (`python --version`)
-- **uv** (Python package manager) — install via `curl -LsSf https://astral.sh/uv/install.sh | sh`
-- **LLM API key** — any OpenAI-compatible endpoint (e.g., Alibaba Qwen, OpenAI)
-- **Zep Cloud API key** — free tier sufficient for simple usage (<https://app.getzep.com/>)
+MiroFish requires:
+- Python ≥3.11, ≤3.12 (NOT 3.13+ — the venv must be 3.12.x)
+- `uv` package manager
+- Node.js 18+ (for the frontend, not needed for API-only operation)
+- A `.env` file with `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL_NAME`, and `ZEP_API_KEY`. MiroFish uses any OpenAI-compatible API endpoint; the default `.env` may point to a proxy (e.g. `api.example-proxy.com/v1`) wrapping a backend model (e.g. `example-model-name`). The `LLMClient` class reads `Config.LLM_BASE_URL` and `Config.LLM_MODEL_NAME` from `.env` with `override=True`, so whatever is in `.env` wins.
+- A prepared simulation (profiles + config already generated)
 
----
-
-## Architecture Overview
+## Project Layout
 
 ```
-MiroFish/
-├── frontend/              Vue 3 + Vite SPA
-│   └── src/
-│       ├── views/         6 views (Home → Process → Simulation → Report → Interaction)
-│       ├── components/    5 step components (Step1–Step5) + GraphPanel + HistoryDatabase
-│       └── api/           Axios API clients (graph, simulation, report)
-├── backend/               Flask 3 + Python
+mirofish-project/
+├── backend/
 │   ├── app/
-│   │   ├── api/           3 route modules: graph.py, simulation.py, report.py
-│   │   ├── services/      12 service modules (graph_builder, simulation_runner, report_agent, zep_*, ontology_*, ...)
-│   │   ├── models/        Project + Task models
-│   │   ├── utils/         LLM client, file parser, Zep lifecycle/paging, OpenAI chat compat
-│   │   └── config.py      Centralized Flask config loading from .env
-│   ├── scripts/           IPC simulation runners (Twitter, Reddit, parallel)
-│   └── tests/             16 test modules (Zep contracts, LLM JSON, ontology, platform profiles)
-├── docker-compose.yml     Single-container deployment
-├── Dockerfile             Python 3.11 + Node + uv
-├── .env.example           Required env vars template
-└── package.json           Root orchestrator (npm run setup:all / dev)
+│   │   ├── api/            # Flask blueprints: simulation.py, report.py, graph.py
+│   │   ├── services/       # simulation_manager.py, simulation_runner.py, report_agent.py, ...
+│   │   └── utils/          # llm_client.py, zep.py, ...
+│   ├── uploads/simulations/<sim_id>/
+│   │   ├── simulation_config.json
+│   │   ├── state.json
+│   │   ├── twitter/actions.jsonl
+│   │   ├── twitter_simulation.db
+│   │   ├── reddit/actions.jsonl
+│   │   ├── reddit_simulation.db
+│   │   └── simulation.log
+│   └── run.py             # Entry point
+├── .env                   # LLM_API_KEY + ZEP_API_KEY
+└── package.json
 ```
 
-### Core Technology Stack
+## Golden Rules
 
-| Layer | Technology |
-|---|---|
-| Frontend | Vue 3, Vite, Vue Router, Pinia (store), Axios, i18n (en/zh) |
-| Backend | Flask 3, Flask-CORS, Python 3.11–3.12 |
-| LLM | OpenAI SDK (any compatible API), optional LLM Boost for acceleration |
-| Memory | Zep Cloud (zep-cloud 3.25.0) — long-term agent memory + GraphRAG |
-| Simulation Engine | CAMEL-AI OASIS (camel-oasis 0.2.5, camel-ai 0.2.78) |
-| File Processing | PyMuPDF (PDF), charset-normalizer/chardet (encoding) |
-| Validation | Pydantic 2 |
+1. **Backend as process principal.** Start with `exec uv run python run.py` in the backend dir. Do NOT wrap in `nohup` or `&` — child processes get cleaned up by the orchestrator.
+2. **Health-check before anything else.** `curl http://localhost:5001/health` must return 200 before calling any API.
+3. **Always `force: true` when re-running.** If a simulation already has run artefacts, use `"force": true` on `/start` to clean old logs and restart fresh.
+4. **Monitor both platforms.** The `parallel` mode runs Twitter and Reddit independently. Twitter often finishes later than Reddit. Check `twitter_completed` and `reddit_completed` separately.
+5. **Call `/stop` after both platforms complete.** The runner status stays "running" even when both platforms show `completed=true`. You must POST to `/api/simulation/stop` to finalise and set `completed_at`.
+6. **Report generation costs LLM quota.** The `/api/report/generate` endpoint makes LLM calls via the configured provider. Verify sufficient quota before launching — a failed report wastes the task slot. The error message may be in Chinese (e.g. `用户额度不足`) even if the provider is not a Chinese service — it can come from an upstream proxy.
+7. **`generate/status` needs `task_id`, not `report_id`.** The status endpoint requires the `task_id` returned by `/generate`, not the `report_id`.
 
-### 5-Phase Workflow
+## Workflow
 
-```
-1. Graph Building   →  2. Environment Setup  →  3. Simulation  →  4. Report  →  5. Interaction
-```
-
-| Phase | What Happens | Key Service |
-|---|---|---|
-| **1. Graph Building** | Seed extraction from uploaded files (PDF/MD/TXT), GraphRAG construction, individual/collective memory injection into Zep | `graph_builder.py`, `zep_graph_memory_updater.py` |
-| **2. Environment Setup** | Entity relationship extraction, persona generation, agent configuration injection | `ontology_generator.py`, `oasis_profile_generator.py`, `simulation_config_generator.py` |
-| **3. Simulation** | Dual-platform (Twitter + Reddit) parallel simulation, dynamic temporal memory updates, auto-parse prediction requirements | `simulation_runner.py`, `simulation_ipc.py`, scripts `run_parallel_simulation.py` |
-| **4. Report Generation** | ReportAgent uses rich toolset to analyze post-simulation state, produces prediction report | `report_agent.py` |
-| **5. Deep Interaction** | Chat with any agent in the simulated world, interact with ReportAgent for follow-up questions | API `report.py`, frontend `InteractionView.vue` |
-
----
-
-## Quick Start
-
-### Option 1: Source Deployment (Recommended)
+### Step 1 — Start the Backend
 
 ```bash
-# 1. Clone
-git clone https://github.com/666ghj/MiroFish.git
-cd MiroFish
-
-# 2. Configure environment
-cp .env.example .env
-# Edit .env — fill in LLM_API_KEY, LLM_BASE_URL, LLM_MODEL_NAME, ZEP_API_KEY
-
-# 3. Install all dependencies (Node + Python)
-npm run setup:all
-#   → npm run setup      (root + frontend npm install)
-#   → npm run setup:backend (cd backend && uv sync)
-
-# 4. Start both frontend + backend
-npm run dev
+cd <mirofish-backend-dir>
+exec uv run python run.py
 ```
 
-**Service URLs:**
-- Frontend: `http://localhost:3000`
-- Backend API: `http://localhost:5001`
-
-**Start services individually:**
-```bash
-npm run backend    # Backend only (cd backend && uv run python run.py)
-npm run frontend   # Frontend only (cd frontend && npm run dev)
-```
-
-### Option 2: Docker Deployment
+Run as a background process (it's a Flask server). Verify after ~6-8 seconds:
 
 ```bash
-cp .env.example .env
-docker compose up -d
-```
-Maps ports `3000 (frontend)` and `5001 (backend)`, reads `.env` from root, persists uploads to `./backend/uploads`.
-
-### Environment Variables
-
-```env
-# LLM API (REQUIRED — any OpenAI-compatible endpoint)
-LLM_API_KEY=your_api_key
-LLM_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
-LLM_MODEL_NAME=qwen-plus
-
-# Zep Cloud (REQUIRED — free tier covers simple usage)
-ZEP_API_KEY=your_zep_api_key
-
-# Optional: LLM acceleration (omit these lines entirely if unused)
-LLM_BOOST_API_KEY=your_boost_key
-LLM_BOOST_BASE_URL=your_boost_url
-LLM_BOOST_MODEL_NAME=your_boost_model
+curl -s http://localhost:5001/health --max-time 10
+# Expect: {"service":"MiroFish Backend","status":"ok"}
 ```
 
-### Backend Configuration (`backend/app/config.py`)
+### Step 2 — Verify Simulation Is Prepared
 
-Key configurable parameters (override via `.env`):
-
-| Parameter | Default | Purpose |
-|---|---|---|
-| `FLASK_HOST` | `0.0.0.0` | Backend bind address |
-| `FLASK_PORT` | `5001` | Backend port |
-| `FLASK_DEBUG` | `False` | Flask debug mode (warn: not for production) |
-| `MAX_CONTENT_LENGTH` | 50 MB | Max upload size |
-| `ALLOWED_EXTENSIONS` | `pdf, md, txt, markdown` | Accepted seed file formats |
-| `DEFAULT_CHUNK_SIZE` | 500 | Text chunking size for processing |
-| `DEFAULT_CHUNK_OVERLAP` | 50 | Overlap between chunks |
-| `OASIS_DEFAULT_MAX_ROUNDS` | `10` | Default simulation round count |
-| `REPORT_AGENT_MAX_TOOL_CALLS` | `5` | Max tool calls per report generation |
-| `REPORT_AGENT_MAX_REFLECTION_ROUNDS` | `2` | Max reflection iterations |
-| `REPORT_AGENT_TEMPERATURE` | `0.5` | LLM temperature for report generation |
-
-### Config Validation
-
-The backend validates config on startup via `Config.validate()`:
-- ✅ `LLM_API_KEY` must be set
-- ✅ `ZEP_API_KEY` must be set
-- ❌ `ZEP_API_URL` is NOT supported — MiroFish only connects to Zep Cloud
-- ⚠️ `FLASK_DEBUG=True` triggers a RuntimeWarning (not for production)
-
-If validation fails, the backend prints errors and exits with code 1.
-
----
-
-## Complete Workflow Demonstration
-
-### Phase 1 — Graph Building (Upload Seeds)
-
-**Frontend (UI):** Navigate to Home → create new project → upload seed files (PDF/MD/TXT) → describe prediction requirements in natural language.
-
-**Backend (API):**
 ```bash
-# Upload seed file(s) + prediction request
-POST /api/graph/build
-Content-Type: multipart/form-data
-  files: @report.pdf
-  prediction_request: "What will public opinion look like after this policy?"
+curl -s -X POST http://localhost:5001/api/simulation/prepare/status \
+  -H "Content-Type: application/json" \
+  -d '{"simulation_id": "sim_xxxx"}'
 ```
 
-**What happens internally:**
-1. `file_parser.py` extracts text from PDF (PyMuPDF) / MD / TXT, handles encoding via charset-normalizer
-2. `text_processor.py` chunks text (`DEFAULT_CHUNK_SIZE=500`, overlap `50`)
-3. `graph_builder.py` extracts entities and relationships via LLM
-4. `ontology_generator.py` creates the ontology (entities, attributes, relations)
-5. `zep_graph_memory_updater.py` injects individual + collective memory into **Zep Cloud** GraphRAG
-6. Returns a `project_id` for use in subsequent phases
+Look for `"status": "ready"` and `"prepare_info"` with `profiles_count` > 0.
 
-### Phase 2 — Environment Setup (Persona Generation)
+### Step 3 — Launch the Simulation
 
-**Frontend:** Navigate to `/process/:projectId` → Step 2 component (`Step2EnvSetup.vue`).
-
-**Backend (API):**
 ```bash
-# Generate personas and agent configurations
-POST /api/simulation/setup
-  project_id: <id>
-  num_agents: 100  # optional, auto-derived from graph
+curl -s -X POST http://localhost:5001/api/simulation/start \
+  -H "Content-Type: application/json" \
+  -d '{
+    "simulation_id": "sim_xxxx",
+    "platform": "parallel",
+    "max_rounds": 20,
+    "force": true
+  }'
 ```
 
-**What happens internally:**
-1. `ontology_generator.py` extracts entity relationships from the graph
-2. `oasis_profile_generator.py` generates personas (personality, background, behavioral traits) via LLM
-3. `simulation_config_generator.py` creates agent configurations for OASIS
-4. Returns a `simulation_id` and config preview
+Key parameters:
+- `platform`: `"parallel"` (Twitter + Reddit), `"twitter"`, or `"reddit"`.
+- `max_rounds`: Cap to control LLM cost. 20 rounds is a good default.
+- `force`: `true` cleans old run logs/config (not profiles or simulation_config).
 
-### Phase 3 — Simulation (Dual-Platform Parallel)
+The response returns `process_pid`, `runner_status: "running"`, and per-platform flags.
 
-**Frontend:** Navigate to `/simulation/:simulationId` → `SimulationRunView.vue` for live monitoring.
+### Step 4 — Monitor Progress
 
-**Backend (API):**
 ```bash
-# Start simulation
-POST /api/simulation/start
-  simulation_id: <id>
-  max_rounds: 40   # keep <40 for first runs (cost!)
-  platforms: ["twitter", "reddit"]
+curl -s http://localhost:5001/api/simulation/sim_xxxx/run-status
 ```
 
-**What happens internally:**
-1. `simulation_manager.py` orchestrates the run
-2. `simulation_ipc.py` launches the IPC runner script in a subprocess
-3. Script `run_parallel_simulation.py --config simulation_config.json` executes:
-   - Dual-platform parallel simulation (Twitter + Reddit agents)
-   - Each agent performs actions: `CREATE_POST`, `LIKE_POST`, `REPOST`, `FOLLOW`, `COMMENT`, `DISLIKE`, `QUOTE_POST`, `DO_NOTHING`, etc.
-   - Dynamic temporal memory updates via `zep_graph_memory_updater.py`
-   - Actions logged to `sim_xxx/twitter/actions.jsonl` and `sim_xxx/reddit/actions.jsonl`
-4. Logs structured as:
-   ```
-   sim_xxx/
-   ├── twitter/actions.jsonl
-   ├── reddit/actions.jsonl
-   ├── simulation.log
-   └── run_state.json
-   ```
-5. After simulation completes, environment stays open for interview commands (unless `--no-wait`)
+Poll every 10-15 seconds. Watch:
+- `runner_status` → should stay `"running"` until both platforms done.
+- `twitter_completed` / `reddit_completed` → individual completion flags.
+- `twitter_current_round` / `reddit_current_round` → progress per platform.
+- `progress_percent` → overall (both platforms must reach 100%).
 
-**Simulation runner scripts:**
+Reddit typically finishes first. Twitter takes longer per round.
+
+### Step 5 — Stop the Simulation
+
+Once both platforms show `completed=true`, call:
+
 ```bash
-# Twitter only
-python run_twitter_simulation.py --config simulation_config.json
-
-# Reddit only
-python run_reddit_simulation.py --config simulation_config.json
-
-# Dual platform (parallel)
-python run_parallel_simulation.py --config simulation_config.json
-
-# Run and close immediately (no interview mode)
-python run_parallel_simulation.py --config simulation_config.json --no-wait
-
-# Single platform flags
-python run_parallel_simulation.py --config simulation_config.json --twitter-only
-python run_parallel_simulation.py --config simulation_config.json --reddit-only
+curl -s -X POST http://localhost:5001/api/simulation/stop \
+  -H "Content-Type: application/json" \
+  -d '{"simulation_id": "sim_xxxx"}'
 ```
 
-### Phase 4 — Report Generation
+This sets `runner_status: "stopped"` and `completed_at` timestamp.
 
-**Frontend:** Navigate to `/report/:reportId` → `ReportView.vue`.
+### Step 6 — Inspect Results
 
-**Backend (API):**
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/simulation/<sim_id>/actions?limit=N` | GET | Action log (CREATE_POST, REPOST, LIKE_POST, QUOTE_POST...) |
+| `/api/simulation/<sim_id>/posts?limit=N` | GET | Full post content with text |
+| `/api/simulation/<sim_id>/timeline` | GET | Round-by-round timeline summary |
+| `/api/simulation/<sim_id>/agent-stats` | GET | Per-agent action counts |
+| `/api/simulation/<sim_id>/comments?limit=N` | GET | Comment content |
+
+Note: The `actions` endpoint returns action types and agent names but content fields are often empty. Use the `posts` endpoint for actual text content. The raw JSONL files at `uploads/simulations/<sim_id>/twitter/actions.jsonl` and `reddit/actions.jsonl` contain everything.
+
+### Step 7 — Generate Prediction Report
+
 ```bash
-POST /api/report/generate
-  simulation_id: <id>
-  prediction_request: "Summarize the key opinion shifts observed"
+curl -s -X POST http://localhost:5001/api/report/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "simulation_id": "sim_xxxx",
+    "prediction_requirements": "Summarize key opinions, sentiment trends, and conclusions..."
+  }'
 ```
 
-**What happens internally:**
-1. `report_agent.py` initializes ReportAgent with a tool-rich environment
-2. Agent queries the post-simulation Zep graph for data
-3. Agent makes up to `REPORT_AGENT_MAX_TOOL_CALLS=5` tool calls with `REPORT_AGENT_MAX_REFLECTION_ROUNDS=2` reflection iterations
-4. LLM generates the report at `REPORT_AGENT_TEMPERATURE=0.5` (balanced creativity/accuracy)
-5. Returns structured prediction report with evidence
+Capture `task_id` from the response. Then poll:
 
-### Phase 5 — Deep Interaction
-
-**Frontend:** Navigate to `/interaction/:reportId` → `InteractionView.vue`.
-
-**Backend (API):**
 ```bash
-# Chat with any agent in the simulated world
-POST /api/report/interact
-  report_id: <id>
-  agent_id: <agent_id from simulation>
-  message: "Why did you repost that opinion?"
+curl -s -X POST http://localhost:5001/api/report/generate/status \
+  -H "Content-Type: application/json" \
+  -d '{"task_id": "<task_id>"}'
 ```
 
-- Chat with any individual agent about their simulated behavior
-- Interact with ReportAgent for follow-up analysis
-- The simulated environment persists (IPC wait mode) for interactive querying
+Status flows: `"generating"` → `"completed"` or `"failed"`.
 
----
+Once completed, retrieve:
 
-## Advanced Use Cases & Integrations
-
-### LLM Provider Swapping
-Any OpenAI-compatible API works — swap the `.env` variables:
-```env
-# OpenAI
-LLM_API_KEY=sk-...
-LLM_BASE_URL=https://api.openai.com/v1
-LLM_MODEL_NAME=gpt-4o-mini
-
-# Alibaba Qwen (recommended by project, cheaper)
-LLM_API_KEY=your_dashscope_key
-LLM_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
-LLM_MODEL_NAME=qwen-plus
-
-# Local vLLM / Ollama
-LLM_API_KEY=dummy
-LLM_BASE_URL=http://localhost:8000/v1
-LLM_MODEL_NAME=your-model
+```bash
+curl -s http://localhost:5001/api/report/<report_id>/download
+curl -s http://localhost:5001/api/report/<report_id>/sections
 ```
 
-### LLM Boost (Optional Acceleration)
-A second, faster LLM handles lighter tasks (persona generation, config parsing) while the primary handles reasoning:
-```env
-LLM_BOOST_API_KEY=...
-LLM_BOOST_BASE_URL=...
-LLM_BOOST_MODEL_NAME=...
+### Step 8 — Deep Interaction (Optional)
+
+```bash
+# Chat with the report agent
+curl -s -X POST http://localhost:5001/api/report/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "report_id": "report_xxxx",
+    "message": "What was the dominant sentiment among teenagers?"
+  }'
+
+# Interview a specific agent
+curl -s -X POST http://localhost:5001/api/simulation/interview \
+  -H "Content-Type: application/json" \
+  -d '{
+    "simulation_id": "sim_xxxx",
+    "agent_name": "Teenagers",
+    "question": "How do you feel about the regulation bill?"
+  }'
 ```
-⚠️ If not using boost, **omit these lines entirely** from `.env` (presence triggers the codepath).
 
-### OASIS Action Customization
-Override the default available actions per platform in `.env` or `config.py`:
-```python
-OASIS_TWITTER_ACTIONS = ['CREATE_POST', 'LIKE_POST', 'REPOST', 'FOLLOW', 'DO_NOTHING', 'QUOTE_POST']
-OASIS_REDDIT_ACTIONS = ['LIKE_POST', 'DISLIKE_POST', 'CREATE_POST', 'CREATE_COMMENT', 'LIKE_COMMENT', 'DISLIKE_COMMENT', 'SEARCH_POSTS', 'SEARCH_USER', 'TREND', 'REFRESH', 'DO_NOTHING', 'FOLLOW', 'MUTE']
+## Pitfalls
+
+### P1 — Backend dies silently after nohup
+**Problem:** Starting the backend with `nohup … &` causes the orchestrator to clean up child processes when the wrapper terminates, killing the Flask server.
+**Fix:** Use `exec uv run python run.py` as the process principal (no nohup, no &). The process replaces the shell.
+
+### P2 — Runner stuck at "running" after both platforms complete
+**Problem:** `runner_status` stays `"running"` even when `twitter_completed=true` and `reddit_completed=true`. There is no `completed_at` timestamp.
+**Fix:** POST to `/api/simulation/stop` with the simulation_id. This finalises the run and sets the completed timestamp.
+
+### P3 — Report generation fails with quota error
+**Problem:** `/api/report/generate/status` returns `status: "failed"` with an error like `insufficient_user_quota` or `用户额度不足`.
+**Fix:** The LLM provider (or its upstream proxy) is out of credit. Error messages may name a *different* provider than the one in `.env`. Example: `.env` points to `api.example-proxy.com/v1` (an OpenAI-compatible proxy), but the error mentions DashScope/Qwen because the proxy routes internally to an upstream provider. The proxy account and the upstream account can have independent quotas — the proxy forwards the upstream error verbatim. To diagnose, test the endpoint directly:
+```bash
+source .env
+curl -s -X POST "${LLM_BASE_URL}/chat/completions" \
+  -H "Authorization: Bearer $LLM_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"'"${LLM_MODEL_NAME}"'","messages":[{"role":"user","content":"ping"}],"max_tokens":5}'
 ```
+Top up the proxy account or switch `LLM_BASE_URL` / `LLM_API_KEY` / `LLM_MODEL_NAME` in `.env` to another OpenAI-compatible endpoint. Simulation data is NOT lost — you can regenerate the report later once quota is restored. **You MUST restart the backend** after editing `.env`: `load_dotenv(override=True)` runs once at import time in `config.py`, not per-request.
 
-### Docker Volume Persistence
-Uploads persist to `./backend/uploads` (mapped in `docker-compose.yml`). Simulations create subdirectories under `uploads/simulations/`.
+### P4 — generate/status endpoint rejects report_id
+**Problem:** Calling `/api/report/generate/status` with `{"report_id": "..."}` returns `"请提供 task_id 或 simulation_id"`.
+**Fix:** Use `"task_id"` (returned by `/generate`), not `"report_id"`. Alternatively, `"simulation_id"` also works.
 
-### Integration with CAMEL-AI / OASIS
-MiroFish's simulation engine is built on [OASIS (Open Agent Social Interaction Simulations)](https://github.com/camel-ai/oasis) by CAMEL-AI. The `camel-oasis` package (v0.2.5) provides the social media simulation primitives.
+### P5 — Actions API returns empty content
+**Problem:** The `/api/simulation/<sim_id>/actions` endpoint returns action types and agent names but content fields are blank.
+**Fix:** Use the `/posts` endpoint for text content, or read the raw JSONL files directly from `uploads/simulations/<sim_id>/{twitter,reddit}/actions.jsonl`.
 
----
+### P6 — Python version mismatch
+**Problem:** System Python is 3.13+ but MiroFish requires ≥3.11, ≤3.12.
+**Fix:** The venv at `backend/.venv` was created with 3.12.x. Use `uv run` which automatically uses the project venv. Do NOT recreate it with system Python 3.13+.
 
-## Golden Rules / Pitfalls
+## Typical Simulation Dynamics
 
-### Golden Rules
-- **Start small** — first simulations should be **<40 rounds** to estimate API costs before scaling
-- **Zep Cloud is mandatory** — there is no self-hosted Zep support (`ZEP_API_URL` is explicitly rejected by config validation)
-- **Any OpenAI-compatible LLM works** — MiroFish is provider-agnostic via the OpenAI SDK format
-- **Agent line + interview mode** — after simulation, the environment stays open (IPC) for agent interviews unless `--no-wait` is passed
-- **Structured logs** — every simulation run produces `simulation.log`, `actions.jsonl`, and `run_state.json` for debugging and API queries
-- **Config validation on startup** — `Config.validate()` exits with code 1 and prints clear errors if required keys are missing
+Based on a completed 20-round parallel simulation (subject: social media regulation bill):
 
-### Pitfalls
-- **Token consumption is HIGH** — hundreds of agents × multiple rounds = large API bills; always test with a small round count first
-- **LLM Boost lines must be fully absent if unused** — leaving `LLM_BOOST_*` keys in `.env` with placeholder values triggers the boost codepath and will fail
-- **Zep Cloud only** — `ZEP_API_URL` for self-hosted Zep is NOT supported (config validation rejects it)
-- **Python version constraint** — `>= 3.11, < 3.13` — Python 3.13 is not supported (OASIS/CAMEL-AI dependency constraint)
-- **Windows encoding monkey-patching** — the parallel simulation script monkey-patches `builtins.open` on Windows to force UTF-8; do not be alarmed if you see this
-- **50MB upload limit** — `MAX_CONTENT_LENGTH` is hardcoded at 50MB; large PDFs may need chunking
-- **Flask debug mode** — `FLASK_DEBUG=True` triggers a RuntimeWarning; never use in production
-- **OASIS action set is finite** — agents can only perform the predefined actions listed in `config.py`; custom actions require modifying the constants
-
----
+- **Rounds 1-9** — Agents have not yet interacted much. The first wave of actions typically starts around round 10 (after the simulation's internal warmup/graph-building phase).
+- **Round 10** — Initial wave: 6-8 agents publish their opening posts (CREATE_POST). These set the narrative frames (e.g. privacy advocates frame the bill as surveillance; government frames it as child protection).
+- **Round 11** — Amplification phase: agents who posted in round 10 get quoted, reposted, and liked. Agents who haven't yet acted join by commenting or reposting. Expect 8-12 action events on Twitter, 5-8 on Reddit.
+- **Round 12** — Riposte phase: institutional actors (Government, Big Tech) respond with CREATE_POST. Other agents continue to like/repost.
+- **Rounds 13-20** — Diminishing returns. Many actions are DO_NOTHING or repeated likes. New content drops sharply.
+- **Twitter vs Reddit** — Twitter produces more volume (23 vs 11 actions) and more diverse action types (CREATE_POST, QUOTE_POST, REPOST, LIKE_POST). Reddit is more discussion-oriented (CREATE_POST + CREATE_COMMENT, fewer reposts).
+- **Content language** — The seed material language determines agent output language. A Chinese seed produces Chinese-language posts even with an English-fluent model.
+- **Most-replayed post** — Typically the one that frames the debate most emotionally (e.g. "privacy is the pillar of democracy"). It collects 5+ reposts/quotes/likes across rounds 11-12.
+- **agent_count discrepancy** — `simulation_start` reports 13 agents but only 12 may appear in action stats. Not all agents act every round, and some may be passive by design.
 
 ## Verification
 
-### Verify services are running
-```bash
-# Check frontend
-curl -s -o /dev/null -w "%{http_code}" http://localhost:3000
-# Expected: 200
+After completing a full run, verify:
+1. `runner_status` is `"stopped"` (not `"running"`)
+2. `completed_at` is set
+3. `total_actions_count` > 0
+4. Both `twitter_completed` and `reddit_completed` are `true`
+5. `actions.jsonl` files exist and have line counts matching the action counts
+6. (If report generated) `report_id` sections are retrievable
 
-# Check backend
-curl -s http://localhost:5001/api/health 2>/dev/null || echo "No health endpoint — check port directly"
-curl -s -o /dev/null -w "%{http_code}" http://localhost:5001
-# Expected: 200 or 404 (Flask default for unknown routes)
-```
+## API Reference
 
-### Verify configuration is valid
-```bash
-# Backend prints config errors on startup
-cd backend && uv run python run.py
-# If errors: prints "配置错误:" or "LLM_API_KEY 未配置" / "ZEP_API_KEY 未配置" and exits(1)
-# If OK: Flask starts on 0.0.0.0:5001
-```
-
-### Verify simulation infrastructure
-```bash
-# Check simulation output structure after a run
-find backend/uploads/simulations/ -type f -name "*.jsonl" -o -name "run_state.json" | sort
-
-# Verify action logs have content
-wc -l backend/uploads/simulations/sim_*/twitter/actions.jsonl
-wc -l backend/uploads/simulations/sim_*/reddit/actions.jsonl
-
-# Check simulation state
-cat backend/uploads/simulations/sim_*/run_state.json | python -m json.tool
-```
-
-### Verify Zep Cloud connectivity
-```bash
-# Run the validation script
-cd backend && uv run python scripts/validate_zep_cloud_integration.py
-# Should output Zep session/user/graph creation success
-```
-
-### Verify tests pass
-```bash
-cd backend && uv run pytest -v
-# 16 test modules covering: Zep contracts, paging, lifecycle, entity reader,
-# graph memory, LLM JSON responses, ontology, platform profiles, simulation barriers
-```
-
----
+For the complete endpoint map (all 30+ routes across simulation, report, and graph blueprints), see `references/api-endpoint-map.md`.
+For the `actions.jsonl` file format (event types, action_args schema, parsing tips), see `references/actions-jsonl-format.md`.
 
 ## Out of Scope
 
-- Self-hosted Zep server support (`ZEP_API_URL` is rejected by design)
-- Custom social media platforms beyond Twitter and Reddit (OASIS limitation)
-- Real social media integration (simulations are synthetic sandbox environments)
-- Training or fine-tuning LLM models (MiroFish uses inference-only)
-- Production-grade authentication or multi-tenant isolation (single-user tool)
-- Real-time streaming simulation output (logs are post-hoc structured files)
-- Any prediction guarantee — MiroFish produces speculative simulations, not certified forecasts
+- Setting up a fresh MiroFish installation from scratch (see upstream README)
+- Configuring Zep Cloud or LLM provider API keys (the `.env` supports any OpenAI-compatible endpoint via `LLM_BASE_URL` + `LLM_MODEL_NAME`)
+- Building or modifying the frontend
+- Custom entity/persona generation (covered by the `prepare` API flow)
+- OASIS social media simulation internals (camel-ai library)

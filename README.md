@@ -1,8 +1,22 @@
-# Hermes Skills 
+# Hermes Agent Skills Library
 
 A curated collection of procedural skills written for [Hermes Agent](https://hermes-agent.nousresearch.com). Each skill encapsulates a proven, field-tested methodology, enabling agents to execute complex, multi-step workflows reliably and repeatably without having to rediscover the necessary steps.
 
-> **What is a Hermes skill?** A `SKILL.md` file plus optional `scripts/`, `references/`, and `templates/` that tells the agent *when* to apply a workflow, *how* to execute it step by step, and *how to verify* it worked. See [`meta/Skill-Authoring-Craft/`](meta/Skill-Authoring-Craft/) for the authoring guide.
+> **What is a Hermes skill?** A `SKILL.md` file plus optional `scripts/`, `references/`, and `templates/` that tells the agent *when* to apply a workflow, *how* to execute it step by step, and *how to verify* it worked. See [`software-development/Skill-Authoring-Craft/`](software-development/Skill-Authoring-Craft/) for the authoring guide.
+
+---
+
+## 🚀 Install
+
+Skills can be added to your Hermes profile by copying the skill folders into `~/.hermes/skills/<category>/`:
+
+```bash
+# Example: install just the PHP audit skill
+mkdir -p ~/.hermes/skills/security
+cp -r security/PhpMySqlWebAppPenetrationTesting ~/.hermes/skills/security/
+```
+
+Then start a new Hermes session — the skills will be available to the agent.
 
 ---
 
@@ -31,7 +45,7 @@ A curated collection of procedural skills written for [Hermes Agent](https://her
 
 | Skill | Purpose |
 |---|---|
-| [`MiroFish`](tools/MiroFish/) | Multi-agent swarm intelligence engine for predicting outcomes via high-fidelity social simulation. 5-phase workflow: graph building → environment setup → parallel simulation → report → interaction. |
+| [`MiroFish`](tools/MiroFish/) | Operate the MiroFish swarm-intelligence prediction engine locally — launch/monitor/stop multi-agent social simulations via its Flask REST API. Covers the full workflow: backend startup, simulation control (parallel Twitter + Reddit), action-log parsing, report generation, and deep interaction. Includes API endpoint map and `actions.jsonl` format reference. Documents typical simulation dynamics (warmup → initial posts → amplification → riposte → plateau) and common pitfalls (LLM proxy quota, process lifecycle, Python version constraints). |
 
 ### 🧠 `meta/` — Skills about Skills
 
@@ -39,20 +53,6 @@ A curated collection of procedural skills written for [Hermes Agent](https://her
 |---|---|
 | [`Skill-Authoring-Craft`](meta/Skill-Authoring-Craft/) | Meta-skill: how to author high-quality Hermes skills — structure, triggers, pitfalls, verification, and anonymity. |
 | [`SkillLibraryGitHubRelease`](meta/SkillLibraryGitHubRelease/) | Publish a Hermes skill library to GitHub: anonymize real targets, add repo scaffolding, git init. |
-
----
-
-## 🚀 Install
-
-Skills can be added to your Hermes profile by copying the skill folders into `~/.hermes/skills/<category>/`:
-
-```bash
-# Example: install just the PHP audit skill
-mkdir -p ~/.hermes/skills/security
-cp -r security/PhpMySqlWebAppPenetrationTesting ~/.hermes/skills/security/
-```
-
-Then start a new Hermes session — the skills will be available to the agent.
 
 ---
 
